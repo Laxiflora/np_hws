@@ -1,7 +1,7 @@
 
 陽明交通大學111-1 網路程式設計projects
 
-寫作心得請參見![我的blog](https://laxiflora.github.io/2022/12/21/111-1-交大網路程式設計/)
+寫作心得請參見[我的blog](https://laxiflora.github.io/2022/12/21/111-1-交大網路程式設計/)
 
 我的projects有些瑕疵，列表如下:
 
