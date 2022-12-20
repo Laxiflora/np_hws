@@ -6,17 +6,14 @@
 我的projects有些瑕疵，列表如下:
 
 ## project1
-測資16(numbered pipe occur in middle , not mixed with ordinary pipe)錯誤
-compare出來結果是有一個指令的stdin pipe導向錯誤
+測資16(numbered pipe occur in middle , not mixed with ordinary pipe)錯誤，compare出來結果是有一個指令的stdin pipe導向錯誤  
 比他還複雜的測資倒是都通過了... 可能剛好卡到某些沒考慮好的問題
 
 ## project2
-大檔案輸入超過buffer上限時會導致server卡死 (server2,3皆會)
-似乎是架構上設計的問題
+大檔案輸入超過buffer上限時會導致server卡死 (server2,3皆會)，似乎是架構上設計的問題
 
 
 ## project3
-console.cgi的連線無法正常結束，不過可以同時執行，在np_golden那方結束輸出以後重新整理也不會導致程式崩潰
-應該是有東西卡住io_context了
+console.cgi的連線無法正常結束，不過可以同時執行，在np_golden那方結束輸出以後重新整理也不會導致程式崩潰。應該是有東西卡住io_context了
 
 ## project4
