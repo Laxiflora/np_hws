@@ -72,7 +72,7 @@ int main(int argc,char* argv[]){
             printf("accept error\n");
             continue;
         }
-        if ( (childpid = fork()) == -1){
+        if ( (childpid = fork()) == -1){ // process limit exceed
             waitProcess(childpid);
             childpid = fork();
         }
@@ -86,7 +86,7 @@ int main(int argc,char* argv[]){
             exec_npshell();
             exit(0);
         }
-        else{
+        else{  // parent will wait until child leave custom shell
             waitpid(childpid,NULL,0);
         }
         close(newsockfd); /* parent process */

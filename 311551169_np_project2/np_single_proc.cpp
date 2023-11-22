@@ -712,6 +712,11 @@ void exec_npshell_serv2(int newsockFd,fd_set& readfds){
         inet_ntop(AF_INET,&cliTable.clientInfo[index].sin_addr,IP,sizeof(struct sockaddr));
         int port = ntohs(cliTable.clientInfo[index].sin_port);
         char msg[512];
+        if(token.size()<2){
+            cout<<"Please enter your name."<<endl;
+            printf("%% ");
+            return;
+        }
         for(int i=0;i<cliTable.clientSize;i++){
             if( strcmp(cliTable.clientName[i].c_str(),token[1].c_str()) == 0){
                 printf("*** User '%s' already exists. ***\n",token[1].c_str());

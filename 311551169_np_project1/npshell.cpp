@@ -31,9 +31,11 @@ vector<int> pendingPid;
 vector<QueueNode> instTable;
 int rootPid;
 
+// new line of instructions executed; update the remaining line for queuing number pipes
 void updateTable(){
     for(int i=0;i<instTable.size();i++){
         instTable[i].round-=1;
+        // number pipe should be already executed
         if(instTable[i].round<0){
             instTable.erase(instTable.begin() + i);
             i--;
@@ -147,12 +149,13 @@ void execCommand(char* const argv[], int isExclamationMark,int commandInFd,int& 
     int pid;
     //cout<<"command = "<< argv[0]<<" , inFd="<<pipeInFd<<", outFd="<<pipeOutFd<<" , commandInFd = "<<commandInFd<<", End of "<< argv[0]<<endl;
     
+    // process count exceed; wait for other child process to finish
     if( (pid= fork()) == -1){
         waitProcess(pid);
         pid = fork();
     }
     
-    
+    // child process
     if(pid == 0){
         close(STDIN_NO);
         dup2(commandInFd,STDIN_NO);
@@ -167,14 +170,19 @@ void execCommand(char* const argv[], int isExclamationMark,int commandInFd,int& 
         close(pipeInFd);
         exit(0);
     }
+    // main shell
     else{
+        // this command will output to STDOUT, we must wait for it to finish before next execution
         if(pipeInFd == 1){
     //        cout<<"waiting for"<<endl;
             waitProcess(pid);
         }
         pendingPid.push_back(pid);
     //    cout<<"closing "<<commandInFd<<endl;
+
+        // main shell don't need to write anything into command output fd
         close(commandInFd);
+        // there is no one else also 
         if(!isNumbered && pipeInFd != 1){
     //        cout<<"closing "<<pipeInFd<<endl;
             close(pipeInFd);
@@ -243,10 +251,12 @@ void parseCommand(vector<string> token){
     //char relation = '-';
     while(tail<token.size()){
         //cout<<"tail="<<token[tail]<<endl;
+
+        // read input line until encounter pipe; all input before pipe will be considered as arguments
         while(tail<token.size()&&!isOrdinPipe(token[tail])&& !isExclamation(token[tail])&&!isNumberPipe(token[tail])&&!isRedirection(token[tail])){
             tail++;
         }
-        if(isFirst){
+        if(isFirst){  // if this is first command of 1 line, check if there exist number pipe piped to this command
             if( checkTable(0,pipeInFd,commandInFd) != -1){
                // cout<<"CHECK,command "<<token[start]<<" has pipeIn = "<< pipeInFd << " . commandInFd = "<<commandInFd<<endl;
            //     cout<<"closing "<<pipeInFd<<endl;
@@ -264,14 +274,20 @@ void parseCommand(vector<string> token){
         if(tail<token.size() && isExclamation(token[tail])){  // we assume exclamation only has numbered one
             string temp = token[tail].substr(1,token[tail].length()); // remove |
             int round = stoi(temp);
+
+            // check if there already exist number pipes that going to output to same command, get pipe IO fds if exist
             checkTable(round,pipeInFd,pipeOutFd);
+
             if(pipeOutFd == -1){                  // means no same round number pipe is found, pipe in fd not specified
                 execCommand(argv,1,commandInFd,pipeInFd,pipeOutFd,1);
                 registerTable(pipeOutFd,pipeInFd,round);
             }
             else{
                 execCommand(argv,1,commandInFd,pipeInFd,pipeOutFd,1);
+                // since there already exist number pipe to same line, we skip register table
             }
+
+            // we assume exclamation ONLY exists in last of a line
             updateTable();
             tail++;
             start = tail;
@@ -340,6 +356,7 @@ static void handler(int signo){
 
 
 int main(int argc, char* argv[]){
+    // initialize PATH for shell
     setenv("PATH","bin:.",1);
     rootPid = getpid();
     signal(SIGCHLD,handler);

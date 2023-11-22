@@ -86,10 +86,13 @@ static void  SIG_handler(int sig){
 
         case SIGUSR1:  // We expected that the semaphore of this process has already been locked by the signal caller.
             //sem_wait(&userTable[_tableIndex].semaphore);
+
+            // read mail from mailbox
             if(strcmp(userTable[_tableIndex].messageBox,"") !=0){
                 write(STDOUT_FILENO,userTable[_tableIndex].messageBox,sizeof(char)*strlen(userTable[_tableIndex].messageBox));
                 strcpy(userTable[_tableIndex].messageBox,"");
             }
+            // FIFO request, open a new file for listening
             if(userTable[_tableIndex].fifoRequest != -1){
                     char fifoPath[25]={'\0'};
                     sprintf(fifoPath,"./user_pipe/%d_%d",userTable[_tableIndex].fifoRequest , _tableIndex+1);
@@ -774,6 +777,10 @@ void exec_npshell_serv3(int newsockfd){
             char msg[512];
             for(int i=0;i<MAXCLIENT;i++){
                 sem_wait(&userTable[i].semaphore);
+                if(token.size()<2){
+                    cout<<"Please enter your name."<<endl;
+                    continue;
+                }
                 if( strcmp(userTable[i].userName,token[1].c_str()) == 0){
                     printf("*** User '%s' already exists. ***\n",token[1].c_str());
                     printf("%% ");
