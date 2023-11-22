@@ -34,14 +34,6 @@ Test
 This is a test program
 for ras.
 
-% ls | removetag test.html | cat |2
-% ls -al |1
-% cat
-
-Test
-This is a test program
-for ras.
-
 总用量 308
 drwxr-xr-x 4 laxiflora laxiflora   4096 11月 22 23:11 .
 drwxr-xr-x 7 laxiflora laxiflora   4096 11月 22 22:52 ..
@@ -99,6 +91,46 @@ drwxr-xr-x 2 laxiflora laxiflora   4096 11月 22 22:52 spec
 
 
 ## project3
-console.cgi的連線無法正常結束，不過可以同時執行，在np_golden那方結束輸出以後重新整理也不會導致程式崩潰。應該是有東西卡住io_context了
+
+## 說明
+
+這個project實作了http server與CGI_server
+- http server做為對外窗口，會接受來自http protocol的request，處理完GET需求以後，將對應的服務轉交給CGI server執行
+- CGI server，則處在執行待命狀態，當收到來自http server的命令時，接受請求並執行程式 (我在project中將CGI server的stdio均改成了socket fd)
+
+這個project需要用到[Boost.Asio](https://www.boost.org/users/history/version_1_83_0.html)，版本1.83.0可以執行
+下載Boost.Asio以後移動到下載位置(預設是這個repo的根目錄)，開始安裝，步驟如下
+```
+tar -xvf boost_1_83_0.tar.gz
+cd boost_1_83_0
+./bootstrap.sh
+./b2
+sudo ./b2 install # 安裝boost到system
+```
+安裝完成以後，根據執行http server的系統
+```
+# windows
+make part2
+
+# linux
+make part1
+```
+編譯完以後就可以執行
+```
+./http_server [port]
+```
+打開瀏覽器，輸入URL "http://localhost:[port]/panel.cgi" (如果跑在其他server就把localhost改掉)
+選擇要跑動的伺服器(其他都是工作站，現已不可用，選最後的local host)，在那個伺服器中執行 `./np_single_golden [port]`，並在panel.cgi中填入np_single_golden的port
+
+按下run，則程式開始執行
+
+
+## 功能
+透過http server指示CGI server執行project 2 的np_simple_golden (Concurrent connection-oriented)
+
+## 心得
+- [BUG] console.cgi的連線無法正常結束，不過可以同時執行，在np_golden那方結束輸出以後重新整理也不會導致程式崩潰。應該是有東西卡住io_context了
+- 根據設計規範，http狀態碼應該經由http server回傳，而非CGI server
+- 另外也不確定直接將CGI的stdio改成socket fd是不是好事(前面兩個project中毒)，好處是CGI exec的program其stdout不需要做任何更動，不過至少在這次project中這樣搞讓整個debug流程更複雜了 
 
 ## project4

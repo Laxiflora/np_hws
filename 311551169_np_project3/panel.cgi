@@ -15,7 +15,8 @@ test_case_menu = ''.join([f'<option value="{test_case}">{test_case}</option>' fo
 
 DOMAIN = 'cs.nctu.edu.tw'
 hosts = [f'nplinux{i + 1}' for i in range(12)]
-host_menu = ''.join([f'<option value="{host}.{DOMAIN}">{host}</option>' for host in hosts])
+hosts.append("localhost") # add for local testing
+host_menu = ''.join([f'<option value="{host}.{DOMAIN}">{host}</option>' if host != "localhost" else f'<option value="{host}">{host}</option>' for host in hosts])
 
 print('Content-type: text/html', end='\r\n\r\n')
 
